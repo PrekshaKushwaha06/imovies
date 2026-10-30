@@ -1,5 +1,3 @@
-import dns from "node:dns";
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
@@ -10,6 +8,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { Booking as DefaultBooking, Movie as DefaultMovie, Screen as DefaultScreen, Show as DefaultShow, Theater as DefaultTheater, User as DefaultUser } from './models.js';
 import { buildBookingReport } from './bookingReports.js';
 import { buildDigitalTicket } from './digitalTickets.js';
+import { resolveMongoUri } from './databaseConfig.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -519,7 +518,10 @@ if (isDirectRun) {
     console.error('Missing JWT_SECRET. Copy server/.env.example to server/.env and configure it.');
     process.exit(1);
   }
-  mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/imovies')
+  let mongoUri;
+  try { mongoUri = resolveMongoUri(); }
+  catch (error) { console.error(error.message); process.exit(1); }
+  mongoose.connect(mongoUri)
     .then(() => createApp().listen(port, () => console.log(`IMovies API ready at http://localhost:${port}`)))
     .catch((error) => { console.error('MongoDB connection failed:', error.message); process.exit(1); });
 }

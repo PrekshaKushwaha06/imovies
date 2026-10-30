@@ -1,9 +1,8 @@
-import dns from "node:dns";
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { Movie, Show, User } from './models.js';
+import { resolveMongoUri } from './databaseConfig.js';
 
 const posters = {
   'Dune: Part Two': 'https://image.tmdb.org/t/p/w780/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg',
@@ -28,7 +27,7 @@ if (!adminEmail || !/^\S+@\S+\.\S+$/.test(adminEmail) || adminPassword.length < 
   process.exit(1);
 }
 try {
-  await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/imovies');
+  await mongoose.connect(resolveMongoUri());
   for (const item of catalog) {
     const movie = await Movie.findOneAndUpdate({ title: item.title }, { ...item, posterUrl: posters[item.title], backdropUrl: posters[item.title], language: 'English' }, { upsert: true, new: true, setDefaultsOnInsert: true });
     if (!await Show.exists({ movie: movie._id })) {

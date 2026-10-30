@@ -6,8 +6,16 @@ import { randomUUID } from 'node:crypto';
 import mongoose from 'mongoose';
 import { createApp } from '../src/index.js';
 import { User as UserModel } from '../src/models.js';
+import { resolveMongoUri } from '../src/databaseConfig.js';
 
 const JWT_SECRET_FOR_TESTS = 'test-only-imovies-jwt-secret';
+
+test('MongoDB URI is required in production while local development keeps its fallback', () => {
+  assert.throws(() => resolveMongoUri({ nodeEnv: 'production', mongoUri: '' }), /MONGODB_URI is required in production/i);
+  assert.throws(() => resolveMongoUri({ nodeEnv: 'production', mongoUri: '   ' }), /MONGODB_URI is required in production/i);
+  assert.equal(resolveMongoUri({ nodeEnv: 'production', mongoUri: ' mongodb+srv://configured.example/db ' }), 'mongodb+srv://configured.example/db');
+  assert.equal(resolveMongoUri({ nodeEnv: 'development', mongoUri: '' }), 'mongodb://127.0.0.1:27017/imovies');
+});
 
 test('user schema defaults new accounts to customer', () => {
   const user = new UserModel({ name: 'Public User', email: 'user@example.test', passwordHash: 'hashed-password' });
