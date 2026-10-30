@@ -1,0 +1,15 @@
+{
+  "name": "imovies-capstone",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "test": "npm --prefix server test && npm --prefix client test",
+    "seed": "npm --prefix server run seed",
+    "start": "npm --prefix server start"
+  },
+  "devDependencies": { "concurrently": "^9.1.2" }
+}
