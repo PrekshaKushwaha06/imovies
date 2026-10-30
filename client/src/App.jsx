@@ -3,7 +3,10 @@ import { Link, NavLink, Route, Routes, useNavigate, useParams, useSearchParams }
 import { ArrowDown, ArrowRight, Armchair, CalendarDays, Check, ChevronDown, Clapperboard, Clock3, Film, Heart, LogIn, LogOut, Menu, Printer, Search, ShieldCheck, Sparkles, Star, Ticket, User, X } from 'lucide-react';
 import { filterAdminBookings, getAdminBookingStats } from './adminBookingStats.js';
 
-const API = '/api';
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const API = configuredApiUrl
+  ? (/\/api$/i.test(configuredApiUrl) ? configuredApiUrl : `${configuredApiUrl}/api`)
+  : '/api';
 async function request(path, options = {}) {
   const token = localStorage.getItem('imovies-token');
   const response = await fetch(API + path, { ...options, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers } });
